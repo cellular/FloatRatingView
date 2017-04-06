@@ -114,21 +114,18 @@ open class FloatRatingView: UIView {
             if rating != oldValue {
 
                 let majorNumber = rating.rounded(.down)
-                let oldMajorNumber = oldValue.rounded(.down)
 
                 // Early completion: Set rating to next whole number if almost there
                 if let roundUp = roundUpRatingFractionAbove, (rating - majorNumber) > roundUp {
                     rating = rating.rounded(.up)
                 }
 
-                // If whole value of rating changed, make image bounce
-                if majorNumber != oldMajorNumber {
+                // If rating reached a whole number, trigger bounc / haptic feedback
+                if rating == majorNumber || rating == majorNumber + 1 {
 
                     if bouncy {
-                        let bounceImageIndex: Int = Int(rating.rounded(.down)) - 1 // get index of matching star
-                        if (0..<fullImageViews.count).contains(bounceImageIndex) { // safety check
-                            bounceImageView(at: bounceImageIndex)
-                        }
+                        let bounceImageIndex: Int = Int(rating) - 1 // get index of matching image
+                        bounceImageView(at: bounceImageIndex)
                     }
 
                     if #available(iOS 10.0, *), hapticFeedbackEnabled {
