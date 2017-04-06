@@ -118,8 +118,8 @@ open class FloatRatingView: UIView {
                     rating = rating.rounded(.up)
                 }
 
-                // If whole value of rating increased (image is completely full), make image bounce
-                if bouncy, rating.rounded(.down) > oldValue.rounded(.down) {
+                // If whole value of rating changed, make image bounce
+                if bouncy, rating.rounded(.down) != oldValue.rounded(.down) {
                     let bounceImageIndex: Int = Int(rating.rounded(.down)) - 1 // get index of matching star
                     if (0..<fullImageViews.count).contains(bounceImageIndex) { // safety check
                         bounceImageView(at: bounceImageIndex)
