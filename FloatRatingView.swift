@@ -198,6 +198,10 @@ open class FloatRatingView: UIView {
         super.init(coder: aDecoder)
         
         initImageViews()
+
+        if #available(iOS 10.0, *) {
+            feedbackGenerator = UISelectionFeedbackGenerator()
+        }
     }
     
     // MARK: Helper methods
