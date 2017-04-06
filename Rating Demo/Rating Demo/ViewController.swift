@@ -14,6 +14,8 @@ class ViewController: UIViewController, FloatRatingViewDelegate {
     @IBOutlet var floatRatingView: FloatRatingView!
     @IBOutlet var liveLabel: UILabel!
     @IBOutlet var updatedLabel: UILabel!
+    @IBOutlet weak var hapticFeedbackLabel: UILabel!
+    @IBOutlet weak var hapticFeedbackSwitch: UISwitch!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -40,6 +42,14 @@ class ViewController: UIViewController, FloatRatingViewDelegate {
         // Labels init
         self.liveLabel.text = NSString(format: "%.2f", self.floatRatingView.rating) as String
         self.updatedLabel.text = NSString(format: "%.2f", self.floatRatingView.rating) as String
+
+        if #available(iOS 10.0, *) {
+            hapticFeedbackLabel.isHidden = false
+            hapticFeedbackSwitch.isHidden = false
+        } else {
+            hapticFeedbackLabel.isHidden = true
+            hapticFeedbackSwitch.isHidden = true
+        }
     }
 
     override func didReceiveMemoryWarning() {
@@ -54,6 +64,10 @@ class ViewController: UIViewController, FloatRatingViewDelegate {
 
     @IBAction func bouncySwitchChanged(_ sender: UISwitch) {
         floatRatingView.bouncy = sender.isOn
+    }
+
+    @IBAction func hapticFeedbackSwitchChanged(_ sender: UISwitch) {
+        floatRatingView.hapticFeedbackEnabled = sender.isOn
     }
 
     // MARK: FloatRatingViewDelegate
