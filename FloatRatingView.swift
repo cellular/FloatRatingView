@@ -112,6 +112,20 @@ open class FloatRatingView: UIView {
     @IBInspectable open var rating: Float = 0 {
         didSet {
             if rating != oldValue {
+
+                // Early completion: Set rating to next whole number if almost there
+                if let roundUp = roundUpRatingFractionAbove, (rating - rating.rounded(.down)) > roundUp {
+                    rating = rating.rounded(.up)
+                }
+
+                // If whole value of rating increased (image is completely full), make image bounce
+                if bouncy, rating.rounded(.down) > oldValue.rounded(.down) {
+                    let bounceImageIndex: Int = Int(rating.rounded(.down)) - 1 // get index of matching star
+                    if (0..<fullImageViews.count).contains(bounceImageIndex) { // safety check
+                        bounceImageView(at: bounceImageIndex)
+                    }
+                }
+
                 refresh()
             }
         }
@@ -131,7 +145,18 @@ open class FloatRatingView: UIView {
     Ratings change by floating point values.
     */
     @IBInspectable open var floatRatings: Bool = false
-    
+
+    /**
+     Stars bounce when filled
+     */
+    @IBInspectable open var bouncy: Bool = false
+
+    /**
+     Round up the rating if its fraction gets above this value. Should be between 0 and 1
+     example: roundUpRatingFractionAbove = 0.7, values >= x.7 get bumped to (x+1).0
+     */
+    open var roundUpRatingFractionAbove: Float?
+
     
     // MARK: Initializations
     
@@ -260,8 +285,23 @@ open class FloatRatingView: UIView {
         delegate?.floatRatingView?(self, isUpdating: rating)
     }
 
+    /// Animates scale bounce of image view at index
+    fileprivate func bounceImageView(at index: Int) {
+        let imageView = fullImageViews[index] // get corresponding image
+
+        UIView.animate(
+            withDuration: 0.13,
+            animations: {
+                imageView.transform = CGAffineTransform.identity.scaledBy(x: 1.3, y: 1.3)
+        },
+            completion: { _ in
+                UIView.animate(withDuration: 0.18, animations: {
+                    imageView.transform = CGAffineTransform.identity
+                })
+        })
+    }
+
     // MARK: UIView
-    
     // Override to calculate ImageView frames
     override open func layoutSubviews() {
         super.layoutSubviews()
