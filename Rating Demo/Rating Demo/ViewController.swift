@@ -52,6 +52,10 @@ class ViewController: UIViewController, FloatRatingViewDelegate {
         self.floatRatingView.floatRatings = sender.selectedSegmentIndex==2
     }
 
+    @IBAction func bouncySwitchChanged(_ sender: UISwitch) {
+        floatRatingView.bouncy = sender.isOn
+    }
+
     // MARK: FloatRatingViewDelegate
     
     func floatRatingView(_ ratingView: FloatRatingView, isUpdating rating:Float) {
