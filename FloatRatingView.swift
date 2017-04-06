@@ -113,16 +113,26 @@ open class FloatRatingView: UIView {
         didSet {
             if rating != oldValue {
 
+                let majorNumber = rating.rounded(.down)
+                let oldMajorNumber = oldValue.rounded(.down)
+
                 // Early completion: Set rating to next whole number if almost there
-                if let roundUp = roundUpRatingFractionAbove, (rating - rating.rounded(.down)) > roundUp {
+                if let roundUp = roundUpRatingFractionAbove, (rating - majorNumber) > roundUp {
                     rating = rating.rounded(.up)
                 }
 
                 // If whole value of rating changed, make image bounce
-                if bouncy, rating.rounded(.down) != oldValue.rounded(.down) {
-                    let bounceImageIndex: Int = Int(rating.rounded(.down)) - 1 // get index of matching star
-                    if (0..<fullImageViews.count).contains(bounceImageIndex) { // safety check
-                        bounceImageView(at: bounceImageIndex)
+                if majorNumber != oldMajorNumber {
+
+                    if bouncy {
+                        let bounceImageIndex: Int = Int(rating.rounded(.down)) - 1 // get index of matching star
+                        if (0..<fullImageViews.count).contains(bounceImageIndex) { // safety check
+                            bounceImageView(at: bounceImageIndex)
+                        }
+                    }
+
+                    if #available(iOS 10.0, *), hapticFeedbackEnabled {
+                        feedbackGenerator?.selectionChanged()
                     }
                 }
 
@@ -157,13 +167,34 @@ open class FloatRatingView: UIView {
      */
     open var roundUpRatingFractionAbove: Float?
 
-    
+    /**
+     Stars bounce when filled
+     */
+    @IBInspectable open var hapticFeedbackEnabled: Bool = false
+
+    // Hack to enable @available properties until supported by Swift
+    // cred: http://www.klundberg.com/blog/Swift-2-and-@available-properties
+    private var _feedbackGenerator: AnyObject?
+    @available(iOS 10.0, *)
+    var feedbackGenerator: UISelectionFeedbackGenerator? {
+        get {
+            return _feedbackGenerator as? UISelectionFeedbackGenerator
+        }
+        set {
+            _feedbackGenerator = newValue
+        }
+    }
+
     // MARK: Initializations
     
     required override public init(frame: CGRect) {
         super.init(frame: frame)
         
         initImageViews()
+
+        if #available(iOS 10.0, *) {
+            feedbackGenerator = UISelectionFeedbackGenerator()
+        }
     }
     
     required public init?(coder aDecoder: NSCoder) {
@@ -287,6 +318,10 @@ open class FloatRatingView: UIView {
 
     /// Animates scale bounce of image view at index
     fileprivate func bounceImageView(at index: Int) {
+        guard (0..<fullImageViews.count).contains(index) else { // safety check
+            return
+        }
+
         let imageView = fullImageViews[index] // get corresponding image
 
         UIView.animate(
@@ -335,6 +370,10 @@ open class FloatRatingView: UIView {
     override open func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else {
             return
+        }
+
+        if #available(iOS 10.0, *) {
+            feedbackGenerator?.prepare()
         }
         updateLocation(touch)
     }
