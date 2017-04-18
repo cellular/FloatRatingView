@@ -33,12 +33,12 @@ open class FloatRatingView: UIView {
     /**
     Array of empty image views
     */
-    fileprivate var emptyImageViews: [UIImageView] = []
+    open var emptyImageViews: [UIImageView] = []
     
     /**
     Array of full image views
     */
-    fileprivate var fullImageViews: [UIImageView] = []
+    open var fullImageViews: [UIImageView] = []
 
     /**
     Sets the empty image (e.g. a star outline)
